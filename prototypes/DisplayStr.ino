@@ -29,7 +29,7 @@
     THE SOFTWARE.
 */
 
-#include "TM1637.h"
+#include "TM1637Display.h"
 
 // Pins definitions for TM1637 and can be changed to other ports
 const int CLK = 2;

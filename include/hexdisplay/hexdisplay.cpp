@@ -3,9 +3,9 @@
 //
 
 #include "hexdisplay.h"
-#include <TM1637.h>
+#include <TM1637Display.h>
 
-void setup(tm1637* tm1637) {
+void setupHexDisplay(tm1637* tm1637) {
     tm1637->init();
     tm1637->set(BRIGHT_TYPICAL);
 }

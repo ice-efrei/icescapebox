@@ -1,12 +1,12 @@
 #ifndef DEFINES_H
 #define DEFINES_H
 
-const byte ROWS = 4;
-const byte COLS = 4;
-const byte rowPins[ROWS] = {29, 27, 25, 23};
-const byte colPins[COLS] = {37, 35, 33, 31};
+const int ROWS = 4;
+const int COLS = 4;
+const int rowPins[ROWS] = {29, 27, 25, 23};
+const int colPins[ROWS] = {37, 35, 33, 31};
 
-const char KEYPAD_INPUTS[ROWS][COLS] = {
+const char KEYPAD_INPUTS[ROWS][ROWS] = {
     {'1','2','3','F'},
     {'4','5','6','E'},
     {'7','8','9','D'},

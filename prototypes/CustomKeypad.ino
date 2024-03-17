@@ -1,5 +1,5 @@
 #include <Keypad.h>
-#include "TM1637.h"
+#include "TM1637Display.h"
 
 const byte ROWS = 4; // Quatre lignes
 const byte COLS = 4; // Quatre colonnes
@@ -13,7 +13,7 @@ char hexaKeys[ROWS][COLS] = {
 byte rowPins[ROWS] = {29, 27, 25, 23}; // Connecter aux lignes du clavier
 byte colPins[COLS] = {37, 35, 33, 31}; // Connecter aux colonnes du clavier
 
-Keypad customKeypad = Keypad( makeKeymap(hexaKeys), rowPins, colPins, ROWS, COLS);
+Keypad customKeypad = Keypad(makeKeymap(hexaKeys), rowPins, colPins, ROWS, COLS);
 
 // Pins definitions for TM1637 and can be changed to other ports
 const int CLK = 2;
