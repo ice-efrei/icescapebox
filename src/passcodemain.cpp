@@ -17,9 +17,24 @@ void setup() {
     setupHexDisplay(&code_display);
     setupHexDisplay(&serial_display);
 
-    setupPasscode(&passcode_keypad, &code_display, &serial_display, &code_state, &passcode, &serial_number, &completed);
+    code_state = "";
+    passcode = generateCode(seed);
+    serial_number = generateSerialCode(seed);
+    displayString(&serial_display, serial_number);
 }
 
 void loop() {
-    updatePasscode(&passcode_keypad, &code_display, &code_state, &passcode, &completed);
+    if(completed == 1){
+        displayString(&code_display, passcode);
+        return;
+    }
+
+    char key = passcode_keypad.getKey();
+    if(key){
+        code_state += key;
+        displayString(&code_display, code_state);
+    }
+
+    if(passcode == code_state) completed = 1;
+    if(code_state.length() >= 4) code_state = "";
 }
