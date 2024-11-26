@@ -24,6 +24,7 @@ void displayString(String str);
 void setup() {
   Serial.begin(9600);
   display.setBrightness(0x0f); // Set the brightness of the display
+  displayString(inputString); // Display default dashes
 }
 
 void loop() {
@@ -34,6 +35,8 @@ void loop() {
     if (customKey >= '0' && customKey <= '9') { // Only consider numeric input
       if (inputString.length() < 4) { // Ensure the input string does not exceed 4 characters
         inputString += customKey;
+      } else {
+        inputString = customKey; // Reset the input string if it exceeds 4 characters
       }
     } else if (customKey == 'C') { // Handle the 'C' key to delete the last character
       if (inputString.length() > 0) {
@@ -45,6 +48,14 @@ void loop() {
 }
 
 void displayString(String str) {
-  uint16_t number = str.toInt(); // Convert the string to an integer
-  display.showNumberDec(number, false, 4, 0); // Display the number on the TM1637
+  if (str.length() > 4) {
+    str = ""; // Reset the string if it exceeds 4 characters
+  }
+  for (int i = 0; i < 4; i++) {
+    if (i < str.length()) {
+      display.showNumberDecEx(str.charAt(i) - '0', 0, true, 1, i); // Display each digit
+    } else {
+      display.setSegments(0x40, 1, i); // Display dash if the string is shorter than 4 characters
+    }
+  }
 }
