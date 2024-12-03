@@ -19,8 +19,10 @@ void setup() {
 void loop() {
   if (Game && i < 10) {
     Serial.print("Votre séquence actuelle : ");
-    Serial.println(answer); // Pour afficher la séquence complète
-
+    for (int j = 0; j <= i; j++) {
+    Serial.print(answer[j]); // Pour afficher la séquence complète
+    }
+    Serial.println();
     Serial.println("Entrez un nombre :"); // Ajout d'une invite pour l'utilisateur
     while (Serial.available() == 0); // Attendre que l'utilisateur saisisse quelque chose
 
@@ -46,8 +48,5 @@ void loop() {
   } else if (i == 10) {
     Serial.println("Bien joué ! Vous avez gagné.");
     while (true); // Stoppe le programme
-  }
-}
-
   }
 }
