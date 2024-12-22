@@ -1,7 +1,7 @@
-#include "passcodemg.h"
+#include "passcode/passcodemg.h"
 #include <TM1637Display.h>
 #include <Keypad.h>
-#include "hexdisplay/hexdisplay.h"
+#include "passcode/hexdisplay.h"
 
 void setup_passcodemg(String* code_state, String* passcode, String* serial_number, int seed, tm1637* serial_display){
     *code_state = "";

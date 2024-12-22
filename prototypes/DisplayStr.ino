@@ -29,12 +29,13 @@
     THE SOFTWARE.
 */
 
-#include "TM1637Display.h"
+#include <Arduino.h>
+#include <TM1637Display.h>
 
 // Pins definitions for TM1637 and can be changed to other ports
 const int CLK = 2;
 const int DIO = 3;
-TM1637 tm1637(CLK, DIO);
+TM1637Display tm1637(CLK, DIO);
 
 void setup() {
     tm1637.init();

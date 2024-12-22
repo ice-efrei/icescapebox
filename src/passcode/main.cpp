@@ -1,8 +1,8 @@
 #include <Arduino.h>
-#include "defines.h"
 #include <Keypad.h>
-#include "hexdisplay/hexdisplay.h"
-#include "passcodemg/passcodemg.h"
+#include "passcode/defines.h"
+#include "passcode/hexdisplay.h"
+#include "passcode/passcodemg.h"
 #include <TM1637Display.h>
 
 TM1637Display code_display(KEYPAD_CLK, KEYPAD_DIO);

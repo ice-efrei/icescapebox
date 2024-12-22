@@ -1,3 +1,7 @@
+/**
+ * @author Grégoire Badiche
+ */
+
 #ifndef GAMESEED_H
 #define GAMESEED_H
 

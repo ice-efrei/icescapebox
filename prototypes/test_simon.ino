@@ -1,3 +1,5 @@
+#include <Arduino.h>
+
 char answer[11] = ""; // 10 caractères + '\0'
 bool Game = true;
 int i = 0;
