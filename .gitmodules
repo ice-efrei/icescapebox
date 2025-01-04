@@ -1,0 +1,3 @@
+[submodule "lib/telegraph"]
+	path = lib/telegraph
+	url = https://github.com/gregoire-badiche/telegraph.git

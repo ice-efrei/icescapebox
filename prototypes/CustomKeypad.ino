@@ -1,3 +1,4 @@
+#include <Arduino.h>
 #include <Keypad.h>
 #include "TM1637Display.h"
 
@@ -18,7 +19,7 @@ Keypad customKeypad = Keypad(makeKeymap(hexaKeys), rowPins, colPins, ROWS, COLS)
 // Pins definitions for TM1637 and can be changed to other ports
 const int CLK = 2;
 const int DIO = 3;
-TM1637 tm1637(CLK, DIO);
+TM1637D tm1637(CLK, DIO);
 
 String inputString = ""; // Variable pour stocker les caractères saisis
 bool displayActive = false; // Variable pour indiquer si l'afficheur doit être actif
