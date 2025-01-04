@@ -9,20 +9,24 @@ using namespace master;
 Telegraph comm(TX);
 
 byte i = 0;
+String a = "abc";
 
 void setup()
 {
     Serial.begin(9600);
     comm.listen(RX);
-    comm.begin(9600);
+    comm.begin(100);
     comm.await_all();
 }
 
 void loop()
 {
     comm.tick();
-    if (comm.buff_size(0) > 0)
+    if (comm.buff_size(0) > 2)
     {
-        Serial.println(comm.read(0));
+        a[0] = comm.read(0);
+        a[1] = comm.read(0);
+        a[2] = comm.read(0);
+        Serial.println(a);
     }
 }

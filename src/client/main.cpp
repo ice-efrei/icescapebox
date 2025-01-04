@@ -13,16 +13,13 @@ byte res;
 void setup()
 {
     Serial.begin(9600);
-    comm.begin(9600);
+    comm.begin(100);
     comm.await();
     randomSeed(analogRead(0));
 }
 
 void loop()
 {
-    byte data = 25;
-    data = random(255);
-    comm.write(&data, 1);
-    Serial.println(data);
-    delay(1000);
+    byte data[3] = {'h', 'i', '!'};
+    comm.write(data, 3);
 }
