@@ -2,8 +2,7 @@
 #define WIREGAME_H
 
 #include <Arduino.h>
-
-#include "GameSeed.h"
+#include "ICEscapeBox.h"
 
 #define WIRE_COUNT 6
 
@@ -28,7 +27,7 @@ class WireGame;
 
 class WireGame {
     public:
-        WireGame(int pins[WIRE_COUNT], RGBLed& led, GameSeed& seed);
+        WireGame(int pins[WIRE_COUNT], RGBLed& led);
         int wireCount;
         wire_t wireList[WIRE_COUNT];
         wire_t wireToCut;
@@ -38,7 +37,6 @@ class WireGame {
         String colorToStr(Color c);
     private:
         RGBLed& _led;
-        GameSeed& _seed;
         void generateWires();
         int _pins[WIRE_COUNT];
         wire_t determineWireToCut();
