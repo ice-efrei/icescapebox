@@ -69,9 +69,24 @@ void won()
     ICEscapeBox.connection.write(&_, 1);
 }
 
-void update()
+unsigned short update()
 {
     ICEscapeBox.connection.tick();
+    return ICEscapeBox.connection.buff_size();
+}
+
+byte read()
+{
+    if (ICEscapeBox.connection.buff_size() > 0)
+    {
+        return ICEscapeBox.connection.read();
+    }
+    return 0;
+}
+
+void write(byte *msg, unsigned short length)
+{
+    ICEscapeBox.connection.write(msg, length);
 }
 
 void getTime(unsigned int *minutes, unsigned int *seconds, unsigned int *milliseconds)
