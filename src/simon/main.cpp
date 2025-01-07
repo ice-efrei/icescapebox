@@ -1,14 +1,16 @@
+#include <Arduino.h>
+
 // Initialisation des pins des LEDs
-const int LED_GREEN = 9;
-const int LED_YELLOW = 3;
-const int LED_BLUE = 6;
-const int LED_RED = 5;
+const int LED_GREEN = 13;
+const int LED_YELLOW = 2;
+const int LED_BLUE = 11;
+const int LED_RED = 7;
 
 // Initialisation des pins des boutons
-const int BUTTON_GREEN = 0;
-const int BUTTON_YELLOW = 0;
-const int BUTTON_BLUE = 0;
-const int BUTTON_RED = 0;
+const int BUTTON_GREEN = 9;
+const int BUTTON_YELLOW = 3;
+const int BUTTON_BLUE = 6;
+const int BUTTON_RED = 5;
 
 // Variables globales
 String s = "";
@@ -39,10 +41,10 @@ int getLedFromNumber(char number) {
 
 // Vérifie si un bouton est pressé et retourne son numéro
 int readButton() {
-  if (digitalRead(LED_GREEN) == HIGH) return 0;
-  if (digitalRead(LED_YELLOW) == HIGH) return 1;
-  if (digitalRead(LED_BLUE) == HIGH) return 2;
-  if (digitalRead(LED_RED) == HIGH) return 3;
+  if (digitalRead(BUTTON_GREEN) == HIGH) return 0;
+  if (digitalRead(BUTTON_YELLOW) == HIGH) return 1;
+  if (digitalRead(BUTTON_BLUE) == HIGH) return 2;
+  if (digitalRead(BUTTON_RED) == HIGH) return 3;
   return -1; // Aucun bouton pressé
 }
 
@@ -94,6 +96,23 @@ void loop() {
       // Attente qu'un bouton soit pressé
       while (buttonPressed == -1) {
         buttonPressed = readButton();
+        if (buttonPressed == 0) {
+            digitalWrite(LED_GREEN, HIGH);
+            delay(500);
+            digitalWrite(LED_GREEN, LOW);
+        } else if (buttonPressed == 1) {
+            digitalWrite(LED_YELLOW, HIGH);
+            delay(500);
+            digitalWrite(LED_YELLOW, LOW);
+        } else if (buttonPressed == 2) {
+            digitalWrite(LED_BLUE, HIGH);
+            delay(500);
+            digitalWrite(LED_BLUE, LOW);
+        } else if (buttonPressed == 3) {
+            digitalWrite(LED_RED, HIGH);
+            delay(500);
+            digitalWrite(LED_RED, LOW);
+        }
       }
 
       if (buttonPressed == s[j] - '0') { // Vérifie si le bouton correspond
