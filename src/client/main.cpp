@@ -16,10 +16,11 @@ void setup()
     comm.begin(100);
     comm.await();
     randomSeed(analogRead(0));
+    byte data[3] = {'h', 'i', '!'};
+    comm.send(data, 3);
 }
 
 void loop()
 {
-    byte data[3] = {'h', 'i', '!'};
-    comm.write(data, 3);
+    comm.tick();
 }
