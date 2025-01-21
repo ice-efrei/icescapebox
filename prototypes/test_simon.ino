@@ -1,54 +1,121 @@
-#include <Arduino.h>
+// Initialisation des pins des LEDs
+const int LED_GREEN = 9;
+const int LED_YELLOW = 3;
+const int LED_BLUE = 6;
+const int LED_RED = 5;
 
-char answer[11] = ""; // 10 caractères + '\0'
-bool Game = true;
-int i = 0;
-int lives = 3;
+// Initialisation des pins des boutons
+const int BUTTON_GREEN = 0;
+const int BUTTON_YELLOW = 0;
+const int BUTTON_BLUE = 0;
+const int BUTTON_RED = 0;
+
+// Variables globales
+String s = "";
+int lives = 3, i = 0;
+bool game = true;
+
+// Fonction pour afficher les premières i lettres de la séquence avec les LEDs
+void displaySequence(String s, int i) {
+  for (int j = 0; j < i; j++) {
+    int led = getLedFromNumber(s[j]); // Obtenir la LED à allumer
+    digitalWrite(led, HIGH);
+    delay(500); // Garde la LED allumée pendant 500 ms
+    digitalWrite(led, LOW);
+    delay(500); // Délai entre chaque LED
+  }
+}
+
+// Retourne la pin LED correspondant à un numéro
+int getLedFromNumber(char number) {
+  switch (number) {
+    case '0': return LED_GREEN;
+    case '1': return LED_YELLOW;
+    case '2': return LED_BLUE;
+    case '3': return LED_RED;
+    default: return -1; // Ne devrait jamais arriver
+  }
+}
+
+// Vérifie si un bouton est pressé et retourne son numéro
+int readButton() {
+  if (digitalRead(LED_GREEN) == HIGH) return 0;
+  if (digitalRead(LED_YELLOW) == HIGH) return 1;
+  if (digitalRead(LED_BLUE) == HIGH) return 2;
+  if (digitalRead(LED_RED) == HIGH) return 3;
+  return -1; // Aucun bouton pressé
+}
+
+// Fait clignoter toutes les LEDs en cas d'erreur
+void blinkAllLeds() {
+  for (int k = 0; k < 5; k++) { // Clignote 5 fois
+    digitalWrite(LED_GREEN, HIGH);
+    digitalWrite(LED_YELLOW, HIGH);
+    digitalWrite(LED_BLUE, HIGH);
+    digitalWrite(LED_RED, HIGH);
+    delay(200);
+    digitalWrite(LED_GREEN, LOW);
+    digitalWrite(LED_YELLOW, LOW);
+    digitalWrite(LED_BLUE, LOW);
+    digitalWrite(LED_RED, LOW);
+    delay(200);
+  }
+}
 
 void setup() {
-  Serial.begin(9600);
+  // Configurer les LEDs comme sorties
+  pinMode(LED_GREEN, OUTPUT);
+  pinMode(LED_YELLOW, OUTPUT);
+  pinMode(LED_BLUE, OUTPUT);
+  pinMode(LED_RED, OUTPUT);
+
+  // Configurer les boutons comme entrées avec pull-up internes
+  pinMode(BUTTON_GREEN, INPUT_PULLUP);
+  pinMode(BUTTON_YELLOW, INPUT_PULLUP);
+  pinMode(BUTTON_BLUE, INPUT_PULLUP);
+  pinMode(BUTTON_RED, INPUT_PULLUP);
+
   // Génération de la séquence aléatoire
- for (int j = 0; j < 10; j++) {
-    int randomNumber = rand() % 4; // Génère un nombre entre 0 et 3
-    char c = '0' + randomNumber;  // Convertit en caractère ('0', '1', '2', '3')
-    answer[j] = c;                // Ajoute directement au tableau
+  randomSeed(analogRead(A0));
+  for (int i = 0; i < 10; i++) {
+    s += String(random(0, 4)); // Génère un chiffre entre 0 et 3
   }
-  answer[10] = '\0'; // Termine la chaîne
-  Serial.println("Jeu démarré !");
-  Serial.println("Entrez les nombres un par un.");
 }
 
 void loop() {
-  if (Game && i < 10) {
-    Serial.print("Votre séquence actuelle : ");
-    for (int j = 0; j <= i; j++) {
-    Serial.print(answer[j]); // Pour afficher la séquence complète
-    }
-    Serial.println();
-    Serial.println("Entrez un nombre :"); // Ajout d'une invite pour l'utilisateur
-    while (Serial.available() == 0); // Attendre que l'utilisateur saisisse quelque chose
+  if (i < 10 && lives > 0) {
+    displaySequence(s, i); // Affiche la séquence avec les LEDs
+    int j = 0;
+    game = true;
 
-    // Lecture de l'entrée utilisateur
-    int numero = Serial.parseInt(); // Récupère un nombre entier depuis le port série
+    while (game && j < i) {
+      int buttonPressed = -1;
 
-    if (numero == (answer[i] - '0')) { // Convertit le caractère à un entier et compare
-      i++;
-      Serial.println("Correct !");
-    } else {
-      lives--;
-      Serial.println("Incorrect !");
-      if (lives == 0) {
-        Game = false;
+      // Attente qu'un bouton soit pressé
+      while (buttonPressed == -1) {
+        buttonPressed = readButton();
       }
-    }
-  }
 
-  // Fin du jeu
-  if (!Game) {
-    Serial.println("Raté ! Vous avez perdu.");
-    while (true); // Stoppe le programme
-  } else if (i == 10) {
-    Serial.println("Bien joué ! Vous avez gagné.");
-    while (true); // Stoppe le programme
+      if (buttonPressed == s[j] - '0') { // Vérifie si le bouton correspond
+        j++;
+      } 
+      else {
+        blinkAllLeds(); // Erreur : clignotement de toutes les LEDs
+        lives--;
+        game = false; // Met fin à la séquence actuelle
+      }
+
+      // Petite pause pour éviter les doubles détections de boutons
+      delay(300);
+    }
+
+    if (game) {
+      i++; // Incrémenter uniquement si la séquence a été correctement complétée
+    }
+  } else {
+    // Fin du jeu
+    while (true) {
+      ; // Boucle infinie pour terminer
+    }
   }
 }
