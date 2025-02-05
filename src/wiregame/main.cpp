@@ -1,11 +1,9 @@
-#include "GameSeed.h"
 #include "wiregame/WireGame.h"
 
 int wirePins[WIRE_COUNT] = { 2, 3, 4, 5, 6, 7 };  // Digital pins connected to the wires
 int ledPins[3] = { 12, 11, 10 };
-GameSeed seed(A0);
 RGBLed led(ledPins);
-WireGame game(wirePins, led, seed);
+WireGame game(wirePins, led);
 
 int ended = 0;
 
@@ -14,19 +12,20 @@ void setup() {
 
     Serial.println("\nBEGIN\n");
 
-    seed.begin();
+    begin();
+
     led.begin();
 
     game.begin();
 
     Serial.print("Seed : ");
-    Serial.println(seed.seed);
+    Serial.println(ICEscapeBox.seed);
 
     Serial.print(game.wireCount);
     Serial.println(" wires to connect");
     
     Serial.print("Serial Number: ");
-    Serial.println(seed.serialNumber);
+    Serial.println(ICEscapeBox.serialNumber);
 
     Serial.print("Cut the ");
     Serial.print(game.colorToStr(game.wireToCut.color));
@@ -49,11 +48,13 @@ void loop() {
                 Serial.println("You lose :(");
                 led.reset();
                 led.red(1);
+                lost();
                 break;
             case 1:
                 Serial.println("You win :)");
                 led.reset();
                 led.green(1);
+                won();
                 break;
             default : 
                 ended = 0;
