@@ -7,7 +7,7 @@
 using namespace client;
 
 Telegraph comm(RX, TX);
-byte res;
+byte res; 
 
 // Initialisation des pins des LEDs
 const int LED_GREEN = 13;
@@ -22,7 +22,7 @@ const int BUTTON_BLUE = 6;
 const int BUTTON_RED = 5;
 
 // Variables globales
-String s = "";
+String s = ""; // Séquence à reproduire
 int lives = 3, i = 0;
 bool game = true;
 
@@ -93,6 +93,7 @@ void setup() {
   pinMode(BUTTON_BLUE, INPUT_PULLUP);
   pinMode(BUTTON_RED, INPUT_PULLUP);
 
+// Initialization of serial communication and random number generator
   Serial.begin(9600);
   comm.begin(9600);
   comm.await();
@@ -111,7 +112,7 @@ void loop() {
 
     while (game && j < i) {
       int buttonPressed = -1;
-      int correctButton = getCorrectButton(s[j], 3 - lives);
+      int correctButton = getCorrectButton(s[j], 3 - lives); // 3 - lives = number of errors
 
       while (buttonPressed == -1) {
         buttonPressed = readButton();
