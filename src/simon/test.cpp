@@ -50,10 +50,10 @@ int getCorrectButton(char led, int errors) {
 
 // Vérifie si un bouton est pressé et retourne son numéro
 int readButton() {
-  if (digitalRead(BUTTON_GREEN) == HIGH) return BUTTON_GREEN;
-  if (digitalRead(BUTTON_YELLOW) == HIGH) return BUTTON_YELLOW;
-  if (digitalRead(BUTTON_BLUE) == HIGH) return BUTTON_BLUE;
-  if (digitalRead(BUTTON_RED) == HIGH) return BUTTON_RED;
+  if (digitalRead(BUTTON_GREEN) == LOW) return 0;
+  if (digitalRead(BUTTON_YELLOW) == LOW) return 1;
+  if (digitalRead(BUTTON_BLUE) == LOW) return 2;
+  if (digitalRead(BUTTON_RED) == LOW) return 3;
   return -1;
 }
 
