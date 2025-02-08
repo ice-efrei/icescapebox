@@ -1,4 +1,13 @@
 #include <Arduino.h>
+#include "Telegraph.h"
+
+
+#define TX 1
+#define RX 0
+using namespace client;
+
+Telegraph comm(RX, TX);
+byte res;
 
 // Initialisation des pins des LEDs
 const int LED_GREEN = 13;
@@ -84,7 +93,11 @@ void setup() {
   pinMode(BUTTON_BLUE, INPUT_PULLUP);
   pinMode(BUTTON_RED, INPUT_PULLUP);
 
+  Serial.begin(9600);
+  comm.begin(9600);
+  comm.await();
   randomSeed(analogRead(A0));
+
   for (int i = 0; i < 10; i++) {
     s += String(random(0, 4));
   }
