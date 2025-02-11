@@ -22,8 +22,8 @@ bool game = true;
 void displaySequence(String s, int i) {
   for (int j = 0; j < i; j++) {
     int led = getLedFromNumber(s[j]);
-    Serial.print("LED lit: ");
-    Serial.println(led);
+    //Serial.print("LED lit: ");
+    //Serial.println(led);
     digitalWrite(led, HIGH);
     delay(500);
     digitalWrite(led, LOW);
@@ -106,8 +106,8 @@ void loop() {
       int buttonPressed = -1;
       int correctButton = getCorrectButton(s[j], 3 - lives); // 3 - lives = number of errors
 
-      Serial.print("Correct button to press: ");
-      Serial.println(correctButton);
+      //Serial.print("Correct button to press: ");
+      //Serial.println(correctButton);
 
       while (buttonPressed == -1) {
         buttonPressed = readButton();
