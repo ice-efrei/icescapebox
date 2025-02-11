@@ -43,11 +43,11 @@ int getLedFromNumber(char number) {
 }
 
 // Retourne le bouton correct en fonction de la LED allumée et du nombre d'erreurs
-int getCorrectButton(char led, int errors) {
-  if (led == '0') return (errors == 0) ? BUTTON_BLUE : (errors == 1) ? BUTTON_YELLOW : BUTTON_GREEN;
-  if (led == '1') return (errors == 0) ? BUTTON_RED : (errors == 1) ? BUTTON_GREEN : BUTTON_RED;
-  if (led == '2') return (errors == 0) ? BUTTON_YELLOW : (errors == 1) ? BUTTON_BLUE : BUTTON_YELLOW;
-  if (led == '3') return (errors == 0) ? BUTTON_GREEN : (errors == 1) ? BUTTON_RED : BUTTON_BLUE;
+int getCorrectButton(int led, int errors) {
+  if (led == '0') return (errors == 0) ? 2 : (errors == 1) ? 1 : 0;
+  if (led == '1') return (errors == 0) ? 3 : (errors == 1) ? 0 : 3;
+  if (led == '2') return (errors == 0) ? 1 : (errors == 1) ? 2 : 1;
+  if (led == '3') return (errors == 0) ? 0 : (errors == 1) ? 3 : 2;
   return -1;
 }
 
