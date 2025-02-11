@@ -40,10 +40,10 @@ void displaySequence(String s, int i) {
 // Retourne la pin LED correspondant à un numéro
 int getLedFromNumber(char number) {
   switch (number) {
-    case '0': return LED_RED;
-    case '1': return LED_BLUE;
-    case '2': return LED_GREEN;
-    case '3': return LED_YELLOW;
+    case '0': return LED_GREEN;
+    case '1': return LED_YELLOW;
+    case '2': return LED_BLUE;
+    case '3': return LED_RED;
     default: return -1;
   }
 }
