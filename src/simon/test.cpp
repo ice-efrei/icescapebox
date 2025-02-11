@@ -1,13 +1,5 @@
 #include <Arduino.h>
-#include "Telegraph.h"
 
-
-#define TX 1
-#define RX 0
-using namespace client;
-
-Telegraph comm(RX, TX);
-byte res; 
 
 // Initialisation des pins des LEDs
 const int LED_GREEN = 13;
@@ -30,6 +22,8 @@ bool game = true;
 void displaySequence(String s, int i) {
   for (int j = 0; j < i; j++) {
     int led = getLedFromNumber(s[j]);
+    Serial.print("LED lit: ");
+    Serial.println(led);
     digitalWrite(led, HIGH);
     delay(500);
     digitalWrite(led, LOW);
@@ -95,8 +89,6 @@ void setup() {
 
 // Initialization of serial communication and random number generator
   Serial.begin(9600);
-  comm.begin(9600);
-  comm.await();
   randomSeed(analogRead(A0));
 
   for (int i = 0; i < 10; i++) {
@@ -114,9 +106,14 @@ void loop() {
       int buttonPressed = -1;
       int correctButton = getCorrectButton(s[j], 3 - lives); // 3 - lives = number of errors
 
+      Serial.print("Correct button to press: ");
+      Serial.println(correctButton);
+
       while (buttonPressed == -1) {
         buttonPressed = readButton();
         if (buttonPressed != -1) {
+          Serial.print("Button pressed: ");
+          Serial.println(buttonPressed);
           digitalWrite(getLedFromNumber(s[j]), HIGH);
           delay(500);
           digitalWrite(getLedFromNumber(s[j]), LOW);
