@@ -1,15 +1,15 @@
 
 // Initialisation des pins des LEDs
-const int LED_GREEN = 13;
-const int LED_YELLOW = 2;
-const int LED_BLUE = 11;
-const int LED_RED = 7;
+const int LED_GREEN = 2;
+const int LED_YELLOW = 3;
+const int LED_BLUE = 4;
+const int LED_RED = 6;
 
 // Initialisation des pins des boutons
-const int BUTTON_GREEN = 9;
-const int BUTTON_YELLOW = 3;
-const int BUTTON_BLUE = 6;
-const int BUTTON_RED = 5;
+const int BUTTON_GREEN = 8;
+const int BUTTON_YELLOW = 9;
+const int BUTTON_BLUE = 10;
+const int BUTTON_RED = 11;
 
 // Variables globales
 String s = "";
