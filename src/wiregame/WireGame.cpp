@@ -1,5 +1,3 @@
-#include <Arduino.h>
-#include "GameSeed.h"
 #include "wiregame/WireGame.h"
 
 namespace
@@ -38,7 +36,7 @@ namespace
     }
 }
 
-WireGame::WireGame(int pins[WIRE_COUNT], RGBLed &led, GameSeed &seed) : _led(led), _seed(seed)
+WireGame::WireGame(int pins[WIRE_COUNT], RGBLed &led) : _led(led)
 {
     for (int i = 0; i < WIRE_COUNT; i++)
     {
@@ -143,7 +141,7 @@ wire_t WireGame::determineWireToCut()
         }
     }
 
-    int lastDigit = strtol(_seed.serialNumber.substring(_seed.serialNumber.length() - 1).c_str(), NULL, 16);
+    int lastDigit = strtol(ICEscapeBox.serialNumber.substring(ICEscapeBox.serialNumber.length() - 1).c_str(), NULL, 16);
 
     if (wireCount == 3)
     {
