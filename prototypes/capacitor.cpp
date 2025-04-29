@@ -1,22 +1,30 @@
 #include <FastLED.h>
 
 #define LED_PIN 7
-#define BUTTON_PIN 4
+#define BUTTON_PIN 2 // Changed button pin to 2
 #define NUM_LEDS 36  // 3 rangées de 12 LEDs en série
 
 CRGB leds[NUM_LEDS];  // Tableau de LEDs
-int lives = 3;
-int TIME_TO_PRESS = 0;
+int lives = 5;        // Initial number of lives
+bool timeToPress = false;
+unsigned long pressStartTime = 0;
+const unsigned long PRESS_DURATION = 5000; // 5 seconds
 
 void setup() {
+  Serial.begin(9600); // Initialize serial communication
   randomSeed(analogRead(0));
-  pinMode(BUTTON_PIN, INPUT);
+  pinMode(BUTTON_PIN, INPUT_PULLUP); // Use internal pull-up resistor
   FastLED.addLeds<WS2812B, LED_PIN, GRB>(leds, NUM_LEDS);
   FastLED.setBrightness(50);
+  fill_solid(leds, NUM_LEDS, CRGB::Black);
+  FastLED.show();
+  Serial.print("Starting with ");
+  Serial.print(lives);
+  Serial.println(" lives.");
 }
 
 // Blinking effect
-void blinks(CRGB leds[]) {
+void blinks(CRGB color) {
   CRGB temp[NUM_LEDS];
   for (int i = 0; i < NUM_LEDS; i++) {
     temp[i] = leds[i];
@@ -25,9 +33,7 @@ void blinks(CRGB leds[]) {
     fill_solid(leds, NUM_LEDS, CRGB::Black);
     FastLED.show();
     delay(200);
-    for (int i = 0; i < NUM_LEDS; i++) {
-      leds[i] = temp[i];
-    }
+    fill_solid(leds, NUM_LEDS, color);
     FastLED.show();
     delay(200);
   }
@@ -35,27 +41,51 @@ void blinks(CRGB leds[]) {
   FastLED.show();
 }
 
-// Fonction de reset via bouton
-int reset_LEDS(CRGB leds[], int* lives, int* TIME_TO_PRESS) {
-  if (digitalRead(BUTTON_PIN) == HIGH) {
-    if (*TIME_TO_PRESS) {
+// Function to check for button press and reset
+void checkButtonAndReset() {
+  if (timeToPress) {
+    if (digitalRead(BUTTON_PIN) == LOW) { // Button press detected (LOW because of pull-up)
       fill_solid(leds, NUM_LEDS, CRGB::Black);
       FastLED.show();
-      *TIME_TO_PRESS = 0;
-    } else {
-      (*lives)--;
+      timeToPress = false;
+      Serial.println("Button pressed in time! LEDs reset.");
+    } else if (millis() - pressStartTime >= PRESS_DURATION) {
+      lives--;
+      Serial.print("Time's up! Lives remaining: ");
+      Serial.println(lives);
+      blinks(CRGB::Red); // Indicate failure with red blinks
+      fill_solid(leds, NUM_LEDS, CRGB::Black);
+      FastLED.show();
+      timeToPress = false;
+    }
+  } else {
+    // Check for premature button press
+    if (digitalRead(BUTTON_PIN) == LOW) {
+      lives--;
+      Serial.print("Premature button press! Lives remaining: ");
+      Serial.println(lives);
+      blinks(CRGB::Red); // Indicate penalty with red blinks
+      delay(1000); // Small delay to show the penalty blink
     }
   }
-  return *lives;
 }
 
 void loop() {
-  long timer = random(60 * 1000, 5460 * 1000);
+  if (lives <= 0) {
+    Serial.println("Game Over!");
+    fill_solid(leds, NUM_LEDS, CRGB::Red);
+    FastLED.show();
+    while (true) {
+      delay(1000); // Stay in game over state
+    }
+  }
+
+  long timer = random(60000, 300000); // Timer between 1 minute (60000 ms) and 5 minutes (300000 ms)
   unsigned long start = millis();
 
-  while (millis() - start < timer) {
+  while (millis() - start < timer && !timeToPress) {
     float elapsed = millis() - start;
-    float progress = elapsed / timer;
+    float progress = elapsed / (float)timer;
 
     // Dégradé du vert au rouge
     for (int i = 0; i < 12; i++) {
@@ -67,14 +97,19 @@ void loop() {
     }
 
     FastLED.show();
-    delay(200);
+    delay(50); // Small delay for smoother animation
 
-    if (progress >= 1.0) {
-      TIME_TO_PRESS = 1;
-      blinks(leds);
-      lives = reset_LEDS(leds, &lives, &TIME_TO_PRESS);
-    }
+    checkButtonAndReset(); // Check for premature presses during the countdown
   }
 
-  delay(2000);
+  if (!timeToPress && lives > 0) {
+    blinks(CRGB::Red); // All LEDs blink red when time is up
+    timeToPress = true;
+    pressStartTime = millis();
+    Serial.println("Time to press the button!");
+  }
+
+  checkButtonAndReset(); // Check for button press during the 5-second window
+
+  delay(10); // Small delay to prevent busy-waiting
 }
