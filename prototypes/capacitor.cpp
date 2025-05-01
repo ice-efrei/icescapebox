@@ -5,10 +5,10 @@
 #define NUM_LEDS 36  // 3 rangées de 12 LEDs en série
 
 CRGB leds[NUM_LEDS];  // Tableau de LEDs
-int lives = 5;        // Initial number of lives
 bool timeToPress = false;
 unsigned long pressStartTime = 0;
 const unsigned long PRESS_DURATION = 5000; // 5 seconds
+bool gameActive = true;
 
 void setup() {
   Serial.begin(9600); // Initialize serial communication
@@ -18,98 +18,106 @@ void setup() {
   FastLED.setBrightness(50);
   fill_solid(leds, NUM_LEDS, CRGB::Black);
   FastLED.show();
-  Serial.print("Starting with ");
-  Serial.print(lives);
-  Serial.println(" lives.");
+  Serial.println("Game Started!");
+  gameActive = true;
 }
 
 // Blinking effect
-void blinks(CRGB color) {
-  CRGB temp[NUM_LEDS];
-  for (int i = 0; i < NUM_LEDS; i++) {
-    temp[i] = leds[i];
-  }
-  for (int j = 0; j < 5; j++) {
+void blinks(CRGB color, int numBlinks, int delayMs) {
+  for (int j = 0; j < numBlinks; j++) {
     fill_solid(leds, NUM_LEDS, CRGB::Black);
     FastLED.show();
-    delay(200);
+    delay(delayMs);
     fill_solid(leds, NUM_LEDS, color);
     FastLED.show();
-    delay(200);
+    delay(delayMs);
   }
   fill_solid(leds, NUM_LEDS, CRGB::Black);
   FastLED.show();
 }
 
-// Function to check for button press and reset
-void checkButtonAndReset() {
-  if (timeToPress) {
-    if (digitalRead(BUTTON_PIN) == LOW) { // Button press detected (LOW because of pull-up)
+// Function to check for button press and stop
+void checkButtonAndStop() {
+  if (timeToPress && gameActive) {
+    // Moment to press: all LEDs turn solid red
+    fill_solid(leds, NUM_LEDS, CRGB::Red);
+    FastLED.show();
+    if (digitalRead(BUTTON_PIN) == LOW) { // Button pressed during the 5 seconds
+      blinks(CRGB::Green, 5, 200); // Indicate success with green blinks
+      Serial.println("Button pressed in time! Game reset.");
+      timeToPress = false;
+      gameActive = true;
       fill_solid(leds, NUM_LEDS, CRGB::Black);
       FastLED.show();
-      timeToPress = false;
-      Serial.println("Button pressed in time! LEDs reset.");
+      Serial.println("Game Started!");
+      return; // Exit the function immediately after successful press
     } else if (millis() - pressStartTime >= PRESS_DURATION) {
-      lives--;
-      Serial.print("Time's up! Lives remaining: ");
-      Serial.println(lives);
-      blinks(CRGB::Red); // Indicate failure with red blinks
+      Serial.println("Time's up! Game Over!");
+      blinks(CRGB::Red, 5, 400); // Indicate failure with red blinks
+      gameActive = false;
       fill_solid(leds, NUM_LEDS, CRGB::Black);
       FastLED.show();
-      timeToPress = false;
     }
-  } else {
+  } else if (gameActive) {
     // Check for premature button press
     if (digitalRead(BUTTON_PIN) == LOW) {
-      lives--;
-      Serial.print("Premature button press! Lives remaining: ");
-      Serial.println(lives);
-      blinks(CRGB::Red); // Indicate penalty with red blinks
-      delay(1000); // Small delay to show the penalty blink
+      Serial.println("Premature button press! Game Over!");
+      blinks(CRGB::Red, 5, 400); // Indicate penalty with red blinks
+      gameActive = false;
+      fill_solid(leds, NUM_LEDS, CRGB::Black);
+      FastLED.show();
     }
   }
 }
 
 void loop() {
-  if (lives <= 0) {
-    Serial.println("Game Over!");
-    fill_solid(leds, NUM_LEDS, CRGB::Red);
-    FastLED.show();
-    while (true) {
-      delay(1000); // Stay in game over state
+  if (gameActive) {
+    long timer = random(10000, 30000); // Timer between 10 and 30 seconds
+    unsigned long start = millis();
+
+    while (millis() - start < timer && gameActive && !timeToPress) {
+      float elapsed = millis() - start;
+      float progress = elapsed / (float)timer;
+
+      // Dégradé du vert au rouge
+      for (int i = 0; i < 12; i++) {
+        if (progress >= (i + 1) / 12.0) {
+          uint8_t hue = map(i, 0, 11, 96, 0); // 96=Vert -> 32=Jaune -> 0=Rouge
+          CRGB color = CHSV(hue, 255, 255);
+          leds[i] = leds[i + 12] = leds[i + 24] = color;
+        }
+      }
+
+      FastLED.show();
+      delay(50); // Small delay for smoother animation
+
+      checkButtonAndStop(); // Check for premature presses during the countdown
+      if (!gameActive) break;
     }
-  }
 
-  long timer = random(60000, 300000); // Timer between 1 minute (60000 ms) and 5 minutes (300000 ms)
-  unsigned long start = millis();
+    if (gameActive && !timeToPress) {
+      fill_solid(leds, NUM_LEDS, CRGB::Red); // All LEDs turn solid red
+      FastLED.show();
+      timeToPress = true;
+      pressStartTime = millis();
+      Serial.println("Time to press the button!");
+    }
 
-  while (millis() - start < timer && !timeToPress) {
-    float elapsed = millis() - start;
-    float progress = elapsed / (float)timer;
+    checkButtonAndStop(); // Check for button press during the 5-second window
 
-    // Dégradé du vert au rouge
-    for (int i = 0; i < 12; i++) {
-      if (progress >= (i + 1) / 12.0) {
-        uint8_t hue = map(i, 0, 11, 96, 0); // 96=Vert -> 32=Jaune -> 0=Rouge
-        CRGB color = CHSV(hue, 255, 255);
-        leds[i] = leds[i + 12] = leds[i + 24] = color;
+    if (!gameActive) {
+      fill_solid(leds, NUM_LEDS, CRGB::Black); // Turn off LEDs on game over
+      FastLED.show();
+      while (true) {
+        delay(1000); // Stay in game over state
       }
     }
 
-    FastLED.show();
-    delay(50); // Small delay for smoother animation
-
-    checkButtonAndReset(); // Check for premature presses during the countdown
+    delay(10); // Small delay to prevent busy-waiting
+  } else {
+    // Game Over state
+    while (true) {
+      delay(1000);
+    }
   }
-
-  if (!timeToPress && lives > 0) {
-    blinks(CRGB::Red); // All LEDs blink red when time is up
-    timeToPress = true;
-    pressStartTime = millis();
-    Serial.println("Time to press the button!");
-  }
-
-  checkButtonAndReset(); // Check for button press during the 5-second window
-
-  delay(10); // Small delay to prevent busy-waiting
 }
