@@ -11,14 +11,12 @@ const unsigned long PRESS_DURATION = 5000; // 5 seconds
 bool gameActive = true;
 
 void setup() {
-  Serial.begin(9600); // Initialize serial communication
   randomSeed(analogRead(0));
   pinMode(BUTTON_PIN, INPUT_PULLUP); // Use internal pull-up resistor
   FastLED.addLeds<WS2812B, LED_PIN, GRB>(leds, NUM_LEDS);
   FastLED.setBrightness(50);
   fill_solid(leds, NUM_LEDS, CRGB::Black);
   FastLED.show();
-  Serial.println("Game Started!");
   gameActive = true;
 }
 
@@ -44,27 +42,23 @@ void checkButtonAndStop() {
     FastLED.show();
     if (digitalRead(BUTTON_PIN) == LOW) { // Button pressed during the 5 seconds
       blinks(CRGB::Green, 5, 200); // Indicate success with green blinks
-      Serial.println("Button pressed in time! Game reset.");
       timeToPress = false;
       gameActive = true;
       fill_solid(leds, NUM_LEDS, CRGB::Black);
       FastLED.show();
-      Serial.println("Game Started!");
       return; // Exit the function immediately after successful press
     } else if (millis() - pressStartTime >= PRESS_DURATION) {
-      Serial.println("Time's up! Game Over!");
       blinks(CRGB::Red, 5, 400); // Indicate failure with red blinks
       gameActive = false;
-      fill_solid(leds, NUM_LEDS, CRGB::Black);
+      fill_solid(leds, NUM_LEDS, CRGB::Red);
       FastLED.show();
     }
   } else if (gameActive) {
     // Check for premature button press
     if (digitalRead(BUTTON_PIN) == LOW) {
-      Serial.println("Premature button press! Game Over!");
       blinks(CRGB::Red, 5, 400); // Indicate penalty with red blinks
       gameActive = false;
-      fill_solid(leds, NUM_LEDS, CRGB::Black);
+      fill_solid(leds, NUM_LEDS, CRGB::Red);
       FastLED.show();
     }
   }
@@ -72,7 +66,7 @@ void checkButtonAndStop() {
 
 void loop() {
   if (gameActive) {
-    long timer = random(10000, 30000); // Timer between 10 and 30 seconds
+    long timer = random(60000, 300000); // Timer between 1 and 5 minutes
     unsigned long start = millis();
 
     while (millis() - start < timer && gameActive && !timeToPress) {
@@ -100,7 +94,6 @@ void loop() {
       FastLED.show();
       timeToPress = true;
       pressStartTime = millis();
-      Serial.println("Time to press the button!");
     }
 
     checkButtonAndStop(); // Check for button press during the 5-second window
