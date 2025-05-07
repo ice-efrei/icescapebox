@@ -4,23 +4,29 @@
 #define TX 2
 #define RX 3
 
-using namespace client;
+using namespace telegraph;
 
-Telegraph comm(RX, TX);
+Telegraph wire = Telegraph();
 
 byte res;
+byte data[3] = {'1', '2', '3'};
+byte b = 128;
 
 void setup()
 {
     Serial.begin(9600);
-    comm.begin(100);
-    comm.await();
-    randomSeed(analogRead(0));
-    byte data[3] = {'h', 'i', '!'};
-    comm.send(data, 3);
+    wire.listen(3, 1);
+    wire.talk(2, 100);
+    wire.begin();
+    // wire.await_all();
+    delay(2000);
+    wire.tx().send(data, 3);
 }
 
 void loop()
 {
-    comm.tick();
+    if (wire.tx().buff_size() == 0) {
+        wire.tx().send(data, 3);
+    }
+    wire.tick();
 }

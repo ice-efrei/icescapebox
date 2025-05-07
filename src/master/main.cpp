@@ -4,29 +4,36 @@
 #define TX 2
 #define RX 3
 
-using namespace master;
+using namespace telegraph;
 
-Telegraph comm(TX);
+Telegraph wire = Telegraph();
 
-byte i = 0;
-String a = "abc";
+byte res;
+byte data[3] = {'h', 'i', '!'};
 
 void setup()
 {
     Serial.begin(9600);
-    comm.listen(RX);
-    comm.begin(100);
-    comm.await_all();
+    wire.listen(3, 100);
+    wire.listen(4, 100);
+    wire.talk(2, 100);
+    wire.begin();
+    Serial.println("waiting");
+    wire.await_all();
+    Serial.println("ready");
 }
 
 void loop()
 {
-    comm.tick();
-    if (comm.buff_size(0) > 2)
-    {
-        a[0] = comm.read(0);
-        a[1] = comm.read(0);
-        a[2] = comm.read(0);
-        Serial.println(a);
+    for (unsigned short i = 0; i < wire.n_listeners; i++) {
+        if (wire.rxs(i).buff_size() != 0) {
+            Serial.print("buff size : ");
+            Serial.print(wire.rxs(i).buff_size());
+            Serial.print(", wire ");
+            Serial.print(i);
+            Serial.print(" said ");
+            Serial.println((char) wire.rxs(i).read());
+        }
     }
+    wire.tick();
 }
