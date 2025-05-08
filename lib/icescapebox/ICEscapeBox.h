@@ -3,95 +3,60 @@
 
 #include <Arduino.h>
 #include "Telegraph.h"
+#include "IEBRandom.h"
 
 #define BAUD_RATE 220
 
 #ifndef RX
-#define RX 2
+#define RX 3
 #endif
 
 #ifndef TX
-#define TX 3
+#define TX 2
 #endif
 
-#ifndef RUNNING_PIN
-#define RUNNING_PIN 4
-#endif
+telegraph::Telegraph wire = telegraph::Telegraph();
 
-using client::Telegraph;
-
-struct ieb_t {
-    String serialNumber;
-    int seed;
-    unsigned long clockStartMs;
-    Telegraph connection;
-};
-
-static ieb_t ICEscapeBox;
-
-static bool _ended = false;
-
-void begin()
+void getSeed()
 {
-    pinMode(RUNNING_PIN, OUTPUT);
-    ICEscapeBox.connection = Telegraph(RX, TX);
+    wire.listen(RX, 100);
+    wire.talk(TX, 100);
+    wire.begin();
+    wire.await_all();
+    wire.rx().recieve(sizeof(int));
 
-    ICEscapeBox.connection.begin(BAUD_RATE);
-    ICEscapeBox.connection.await();
-    ICEscapeBox.connection.recv(sizeof(int));
-    ICEscapeBox.clockStartMs = millis();
+    _syncms = millis();
 
-    int *s = &(ICEscapeBox.seed);
+    byte *seed_arr = (byte *)&seed;
+    byte counter = 0;
 
-    for (unsigned short i = 0; i < sizeof(int); i++)
+    while (wire.rx().buff_size() != 0)
     {
-        s[i] = ICEscapeBox.connection.read();
+        seed_arr[counter] = wire.rx().read();
+        counter++;
     }
 
-    randomSeed(*s);
-
-    ICEscapeBox.serialNumber = String(random(0x10000), HEX);
-    while (ICEscapeBox.serialNumber.length() < 4)
-    {
-        ICEscapeBox.serialNumber = "0" + ICEscapeBox.serialNumber;
-    }
+    genRandomsValues(seed, false);
 }
 
 void lost()
 {
-    byte _ = 0xff;
-    ICEscapeBox.connection.write(&_, 1);
+    wire.tx().tell(0x0);
 }
 
 void won()
 {
-    byte _ = 0x00;
-    ICEscapeBox.connection.write(&_, 1);
+    wire.tx().tell(0xf);
 }
 
-unsigned short update()
+void lostLife(unsigned short n)
 {
-    ICEscapeBox.connection.tick();
-    return ICEscapeBox.connection.buff_size();
+    wire.tx().tell(0x8 + (n & 0x3));
 }
 
-byte read()
+void lostLife()
 {
-    if (ICEscapeBox.connection.buff_size() > 0)
-    {
-        return ICEscapeBox.connection.read();
-    }
-    return 0;
-}
-
-void write(byte *msg, unsigned short length)
-{
-    ICEscapeBox.connection.write(msg, length);
-}
-
-void getTime(unsigned int *minutes, unsigned int *seconds, unsigned int *milliseconds)
-{
-    return;
+    wire.tx().tell(0x9);
 }
 
 #endif
